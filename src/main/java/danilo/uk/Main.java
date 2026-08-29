@@ -16,8 +16,8 @@ public class Main {
         String vehicle = "car";
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.of(2026, 8, 31, 15, 0, 0);
-        double amount = parkingService.processParking(vehicle, start, 1.3);
-        double amountUpgraded = parkingService.processParkingUpgraded(vehicle, start, end);
+        double amount = parkingService.processParkingFlatRate(vehicle, start, 1.3);
+        double amountUpgraded = parkingService.processParkingVariableRate(vehicle, start, end);
         System.out.println("amount " + amount);
         System.out.println("amountUpgraded " + amountUpgraded);
     }

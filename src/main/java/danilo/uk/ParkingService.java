@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +26,11 @@ public class ParkingService {
             "night", 1.0,
             "weekend", 0.5
     );
+    private static final double WEEK_CHARGE =
+            48*TIME_RATE.get("weekend")+
+            40*TIME_RATE.get("day")+
+            80*TIME_RATE.get("night");
+
     private static final Map<String, Double> VEHICLE_RATE = Map.of(
             "car", 1.0,
             "motorbike", 0.5,
@@ -41,7 +48,7 @@ public class ParkingService {
         this.paperPrintService = paperPrintService;
     }
 
-    public double processParking(String vehicleType, LocalDateTime date, Double duration) {
+    public double processParkingFlatRate(String vehicleType, LocalDateTime date, Double duration) {
 
         String timeRate = getRate(date);
         int numberOfHours = (int) Math.ceil(duration);
@@ -61,7 +68,7 @@ public class ParkingService {
         return roundTotalAmount;
     }
 
-    public double processParkingUpgraded(String vehicleType, LocalDateTime start, LocalDateTime end) {
+    public double processParkingVariableRate(String vehicleType, LocalDateTime start, LocalDateTime end) {
         // calculate the difference in terms of days, hours
         // discard minutes (first hour free)
         // if days difference > 7 =>
@@ -83,8 +90,47 @@ public class ParkingService {
         //                  sum to previous total
         //                  move start date to the check point
         //                  continue till next checkpoint is after end
+        double charge = 0.0;
+        Duration parkDuration = Duration.between(start, end);
+        long days = parkDuration.toDays();
+        if (days < 7) {
+            charge += getWeekCharge(start, end);
+        } else {
+            long nWeeks = days/7;
+            charge += nWeeks * WEEK_CHARGE;
+            LocalDateTime newStart = start.plusDays(nWeeks*7);
+            charge += getWeekCharge(newStart, end);
+        }
+        return charge*VEHICLE_RATE.get(vehicleType);
+    }
 
-        return 1.0;
+    private double getWeekCharge(LocalDateTime start, LocalDateTime end) {
+        LocalDateTime checkPoint = getNextCheckPoint(start);
+        LocalDateTime current = start;
+        double weekCharge = 0.0;
+        while(checkPoint.isBefore(end)){
+            weekCharge += TIME_RATE.get(getRate(start)) * (Duration.between(current, checkPoint).toHours());
+            current = checkPoint.plusHours(1);
+            checkPoint = getNextCheckPoint(current);
+        }
+        return weekCharge;
+    }
+
+    private LocalDateTime getNextCheckPoint(LocalDateTime start) {
+        DayOfWeek dayOfWeek = start.getDayOfWeek();
+        int hour = start.getHour();
+        boolean isWeekDay = workingDays.contains(dayOfWeek);
+        if(!isWeekDay) {
+            return start.with(TemporalAdjusters.next(DayOfWeek.MONDAY))
+                    .toLocalDate()
+                    .atStartOfDay();
+        }
+        if (hour<9){
+            return start.withHour(9).withMinute(0).withSecond(0);
+        } else if (hour < 17) {
+            return start.withHour(17).withMinute(0).withSecond(0);
+        }
+        return start.plusDays(1).withHour(9).withMinute(0).withSecond(0);
     }
 
     /**

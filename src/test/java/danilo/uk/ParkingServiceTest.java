@@ -21,7 +21,7 @@ class ParkingServiceTest {
     @MethodSource("datesUpgraded")
     public void testTimeRatesUpgraded(LocalDateTime start, LocalDateTime end, double expected) {
         ParkingService parkingService = new ParkingService(cardPaymentService, paperPrintService);
-        double result = parkingService.processParkingUpgraded("car", start, end);
+        double result = parkingService.processParkingVariableRate("car", start, end);
         assertEquals(0, Double.compare(expected, result));
     }
 
@@ -29,7 +29,7 @@ class ParkingServiceTest {
     @MethodSource("dates")
     public void testTimeRates(LocalDateTime date, double expected) {
         ParkingService parkingService = new ParkingService(cardPaymentService, paperPrintService);
-        double result = parkingService.processParking("car", date, 1.0);
+        double result = parkingService.processParkingFlatRate("car", date, 1.0);
         assertEquals(0, Double.compare(expected, result));
     }
 
@@ -37,7 +37,7 @@ class ParkingServiceTest {
     @MethodSource("vehicles")
     public void testVehicleRates(String vehicle, double expected) {
         ParkingService parkingService = new ParkingService(cardPaymentService, paperPrintService);
-        double result = parkingService.processParking(
+        double result = parkingService.processParkingFlatRate(
                 vehicle,
                 LocalDateTime.of(2026, 8, 17, 10, 0, 0),
                 1.0);
@@ -67,7 +67,10 @@ class ParkingServiceTest {
     }
     private static Stream<Arguments> datesUpgraded() {
         return Stream.of(
-                Arguments.of(LocalDateTime.of(2026, 8, 17, 10, 0, 0), LocalDateTime.of(2026, 8, 17, 12, 0, 0), 1.0)
+                Arguments.of(
+                        LocalDateTime.of(2026, 8, 17, 10, 0, 0),
+                        LocalDateTime.of(2026, 8, 24, 10, 0, 0),
+                        184.0)
         );
     }
 }
