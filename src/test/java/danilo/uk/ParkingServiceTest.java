@@ -70,27 +70,58 @@ class ParkingServiceTest {
                 Arguments.of(
                         LocalDateTime.of(2026, 8, 17, 10, 0, 0),
                         LocalDateTime.of(2026, 8, 24, 10, 0, 0),
-                        184.0), // 1 week
+                        184.0),
+                // 1 week
                 Arguments.of(
                         LocalDateTime.of(2026, 8, 17, 10, 0, 0),
                         LocalDateTime.of(2026, 9, 7, 10, 0, 0),
-                        184.0*3), // 3 weeks going to the next month
+                        184.0*3),
+                // 3 weeks going to the next month
                 Arguments.of(
                         LocalDateTime.of(2026, 8, 17, 10, 0, 0),
                         LocalDateTime.of(2026, 10, 5, 10, 0, 0),
                         184.0*7),
+                // 7 weeks going to month after next
                 Arguments.of(
                         LocalDateTime.of(2026, 8, 17, 10, 0, 0),
                         LocalDateTime.of(2026, 8, 20, 10, 0, 0),
-                        96.0), // 2 full week days (32*2=64) + 10-24 Monday (7*2.0+7*1.0=21) + 00-10 Thursday (9*1.0+1*2.0=11)
+                        96.0),
+                // Stay less than a week, ends on a week day ->
+                // 2 full week days (32*2=64) + 10-24 Monday (7*2.0+7*1.0=21) + 00-10 Thursday (9*1.0+1*2.0=11)
                 Arguments.of(
                         LocalDateTime.of(2026, 8, 17, 10, 0, 0),
                         LocalDateTime.of(2026, 8, 27, 9, 0, 0),
-                        278.0), // 1 full week (184.0 GBP) to get to 24th + (7 hours day tariff + 16 hours night tariff) to get to 25th (30.0 GBP) + (8 hours day tariff + 16 hours night tariff) to get to 26th (32 GBP) + (8 hours day tariff + 16 hours night tariff) to get to 27 (32 GBP)
+                        278.0),
+                // Stay more than a week, ends on weekday check point ->
+                // 1 full week (184.0 GBP) to get to 24th + (7 hours day tariff + 16 hours night tariff) to get to 25th (30.0 GBP) + (8 hours day tariff + 16 hours night tariff) to get to 26th (32 GBP) + (8 hours day tariff + 16 hours night tariff) to get to 27 (32 GBP)
                 Arguments.of(
                         LocalDateTime.of(2026, 8, 21, 10, 0, 0),
                         LocalDateTime.of(2026, 8, 29, 14, 0, 0),
-                        212.0) // 1 full week (184.0 GBP) to get to 28th + (7hours day+7 hours night) to get to 29th midnight (21 GBP) + 14 hours weekend (7 GBP)
+                        212.0),
+                // Stay more than a week, ends on Saturday
+                // 1 full week (184.0 GBP) to get to 28th + (7hours day+7 hours night) to get to 29th midnight (21 GBP) + 14 hours weekend (7 GBP)
+                Arguments.of(
+                        LocalDateTime.of(2026, 8, 15, 23, 0, 0),
+                        LocalDateTime.of(2026, 8, 21, 14, 0, 0),
+                        159.5),
+                // Stay less than a week, starts on Sat, ends on weekday
+                // (25hours weekend) to get to 17th midnight (12.5 GBP) +
+                // (9 hours night+ 8 hours day) to get to 17th Monday at 17 (25 GBP) +
+                // (16night +8 day) to get to 18th 17.00 (32 GBP) +
+                // (16night +8 day) to get to 19th 17.00 (32 GBP) +
+                // (16night +8 day) to get to 20th 17.00 (32 GBP) +
+                // (16night +5day) to get to the end (26 GBP)
+                Arguments.of(
+                        LocalDateTime.of(2026, 8, 15, 23, 0, 0),
+                        LocalDateTime.of(2026, 8, 21, 17, 0, 0),
+                        165.5)
+                // Stay less than a week, starts on Sat, ends on Friday checkpoint
+                // (25hours weekend) to get to 17th midnight (12.5 GBP) +
+                // (9 hours night+ 8 hours day) to get to 17th Monday at 17 (25 GBP) +
+                // (16night +8 day) to get to 18th 17.00 (32 GBP) +
+                // (16night +8 day) to get to 19th 17.00 (32 GBP) +
+                // (16night +8 day) to get to 20th 17.00 (32 GBP) +
+                // (16night +8day) to get to the end (32 GBP)
         );
     }
 }
