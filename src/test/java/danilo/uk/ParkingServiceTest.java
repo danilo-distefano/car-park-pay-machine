@@ -22,7 +22,7 @@ class ParkingServiceTest {
     public void testTimeRatesUpgraded(LocalDateTime start, LocalDateTime end, double expected) {
         ParkingService parkingService = new ParkingService(cardPaymentService, paperPrintService);
         double result = parkingService.processParkingVariableRate("car", start, end);
-        assertEquals(0, Double.compare(expected, result));
+        assertEquals(0, Double.compare(expected, result), "expected: %f, actual: %f".formatted(expected, result));
     }
 
     @ParameterizedTest
@@ -70,7 +70,19 @@ class ParkingServiceTest {
                 Arguments.of(
                         LocalDateTime.of(2026, 8, 17, 10, 0, 0),
                         LocalDateTime.of(2026, 8, 24, 10, 0, 0),
-                        184.0)
+                        184.0), // 1 week
+                Arguments.of(
+                        LocalDateTime.of(2026, 8, 17, 10, 0, 0),
+                        LocalDateTime.of(2026, 9, 7, 10, 0, 0),
+                        184.0*3), // 3 weeks going to the next month
+                Arguments.of(
+                        LocalDateTime.of(2026, 8, 17, 10, 0, 0),
+                        LocalDateTime.of(2026, 10, 5, 10, 0, 0),
+                        184.0*7),
+                Arguments.of(
+                        LocalDateTime.of(2026, 8, 17, 10, 0, 0),
+                        LocalDateTime.of(2026, 8, 20, 10, 0, 0),
+                        96.0) // 2 full week days (32*2=64) + 10-24 Monday (7*2.0+7*1.0=21) + 00-10 Thursday (9*1.0+1*2.0=11)
         );
     }
 }

@@ -109,11 +109,15 @@ public class ParkingService {
         LocalDateTime current = start;
         double weekCharge = 0.0;
         while(checkPoint.isBefore(end)){
-            weekCharge += TIME_RATE.get(getRate(start)) * (Duration.between(current, checkPoint).toHours());
-            current = checkPoint.plusHours(1);
-            checkPoint = getNextCheckPoint(current);
+            weekCharge += TIME_RATE.get(getRate(current)) * (Duration.between(current, checkPoint).toHours());
+            current = checkPoint;
+            checkPoint = getNextCheckPoint(current.plusHours(1));
         }
-        return weekCharge;
+        // make sure current is still before end
+        if (current.isAfter(end)){
+            throw new RuntimeException("Something went wrong");
+        }
+        return current.equals(end) ? weekCharge : weekCharge + TIME_RATE.get(getRate(current.plusMinutes(1))) * (Duration.between(current, end).toHours());
     }
 
     private LocalDateTime getNextCheckPoint(LocalDateTime start) {
