@@ -82,7 +82,15 @@ class ParkingServiceTest {
                 Arguments.of(
                         LocalDateTime.of(2026, 8, 17, 10, 0, 0),
                         LocalDateTime.of(2026, 8, 20, 10, 0, 0),
-                        96.0) // 2 full week days (32*2=64) + 10-24 Monday (7*2.0+7*1.0=21) + 00-10 Thursday (9*1.0+1*2.0=11)
+                        96.0), // 2 full week days (32*2=64) + 10-24 Monday (7*2.0+7*1.0=21) + 00-10 Thursday (9*1.0+1*2.0=11)
+                Arguments.of(
+                        LocalDateTime.of(2026, 8, 17, 10, 0, 0),
+                        LocalDateTime.of(2026, 8, 27, 9, 0, 0),
+                        278.0), // 1 full week (184.0 GBP) to get to 24th + (7 hours day tariff + 16 hours night tariff) to get to 25th (30.0 GBP) + (8 hours day tariff + 16 hours night tariff) to get to 26th (32 GBP) + (8 hours day tariff + 16 hours night tariff) to get to 27 (32 GBP)
+                Arguments.of(
+                        LocalDateTime.of(2026, 8, 21, 10, 0, 0),
+                        LocalDateTime.of(2026, 8, 29, 14, 0, 0),
+                        212.0) // 1 full week (184.0 GBP) to get to 28th + (7hours day+7 hours night) to get to 29th midnight (21 GBP) + 14 hours weekend (7 GBP)
         );
     }
 }

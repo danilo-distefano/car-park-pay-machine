@@ -134,6 +134,9 @@ public class ParkingService {
         } else if (hour < 17) {
             return start.withHour(17).withMinute(0).withSecond(0);
         }
+        if (dayOfWeek.equals(DayOfWeek.FRIDAY)) {
+            return start.plusDays(1).withHour(0).withMinute(0).withSecond(0);
+        }
         return start.plusDays(1).withHour(9).withMinute(0).withSecond(0);
     }
 
